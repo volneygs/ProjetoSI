@@ -21,7 +21,7 @@ app.controller("SearchProductCtrl", function ($scope, $uibModal, $http, toastr,$
 
     $scope.openCreateProductDialog = function() {
         var modalInstance = $uibModal.open({
-            ariaLabelledBy: 'Adicionar Produto',
+           ariaLabelledBy: 'Adicionar Produto',
             ariaDescribedBy: 'Formulario para adição de um novo produto',
             templateUrl: 'app/core/main/createProductView.html',
             controller: 'CreateProductCtrl',
@@ -117,6 +117,24 @@ app.controller("SearchProductCtrl", function ($scope, $uibModal, $http, toastr,$
 
     loadProductsList();
     loadProductsList();
+});
+
+app.controller("loginCtrl", function($scope, $uibModal, $http, toastr,$location, mainService){
+    $scope.createLoginForm = function() {
+        var modalInstance = $uibModal.open({
+           ariaLabelledBy: 'Adicionar Produto',
+            ariaDescribedBy: 'Formulario para adição de um novo produto',
+            templateUrl: 'app/core/main/loginView.html',
+            controller: 'loginCtrl',
+            controllerAs: 'cpCtrl'
+        });
+
+        modalInstance.result.then(function (result) {
+            if (result === 201) {
+              loadProductsList();
+            }
+        });
+    };
 });
 
 app.controller("CreateProductCtrl", function ($uibModalInstance, $http, toastr) {
