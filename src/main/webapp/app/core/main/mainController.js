@@ -137,6 +137,24 @@ app.controller("loginCtrl", function($scope, $uibModal, $http, toastr,$location,
     };
 });
 
+app.controller("cadastroCtrl", function($scope, $uibModal, $http, toastr,$location, mainService){
+    $scope.createCadastroForm = function() {
+        var modalInstance = $uibModal.open({
+           ariaLabelledBy: 'Cadastro',
+            ariaDescribedBy: 'Formulario para cadastro de usuarios',
+            templateUrl: 'app/core/main/createUserView.html',
+            controller: 'cadastroCtrl',
+            controllerAs: 'cpCtrl'
+        });
+
+        modalInstance.result.then(function (result) {
+            if (result === 201) {
+              loadProductsList();
+            }
+        });
+    };
+});
+
 app.controller("CreateProductCtrl", function ($uibModalInstance, $http, toastr) {
 
     var vm = this;
