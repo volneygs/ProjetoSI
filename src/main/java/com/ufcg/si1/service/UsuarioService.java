@@ -4,9 +4,9 @@ import com.ufcg.si1.model.Produto;
 
 public interface UsuarioService {
 	
-	Produto pesquisaPorNome(String nome);
+	Produto pesquisaPorNome(String nomeProduto);
 
-	Produto pesquisaPorId(long id);
+	Produto pesquisaPorId(long idProduto);
 	
 	void mudarSenha(String password);
 	

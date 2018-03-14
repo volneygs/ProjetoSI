@@ -2,16 +2,16 @@ package com.ufcg.si1.service;
 
 import com.ufcg.si1.model.Produto;
 
-public class Administrador implements UsuarioService {
+public class UsuarioServiceImpl implements UsuarioService {
 
 	@Override
-	public Produto pesquisaPorNome(String nome) {
+	public Produto pesquisaPorNome(String nomeProduto) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Produto pesquisaPorId(long id) {
+	public Produto pesquisaPorId(long idProduto) {
 		// TODO Auto-generated method stub
 		return null;
 	}

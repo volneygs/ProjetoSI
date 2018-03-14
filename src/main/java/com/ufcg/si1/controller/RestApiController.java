@@ -16,7 +16,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ufcg.si1.model.Lote;
 import com.ufcg.si1.model.Produto;
-import com.ufcg.si1.model.DTO.LoteDTO;
 import com.ufcg.si1.repository.Repositorio;
 import com.ufcg.si1.service.LoteService;
 import com.ufcg.si1.service.LoteServiceImpl;
@@ -160,7 +159,7 @@ public class RestApiController {
 	}
 
 	@RequestMapping(value = "/produto/{id}/lote", method = RequestMethod.POST)
-	public ResponseEntity<?> criarLote(@PathVariable("id") long produtoId, @RequestBody LoteDTO loteDTO) {
+	public ResponseEntity<?> criarLote(@PathVariable("id") long produtoId, @RequestBody Lote loteAux) {
 		Produto product = produtoService.findById(produtoId);
 
 		if (product == null) {
@@ -169,11 +168,11 @@ public class RestApiController {
 					HttpStatus.NOT_FOUND);
 		}
 
-		Lote lote = loteService.saveLote(new Lote(product, loteDTO.getNumeroDeItens(), loteDTO.getDataDeValidade()));
+		Lote lote = loteService.saveLote(new Lote(product, loteAux.getNumeroDeItens(), loteAux.getDataDeValidade()));
 
 		try {
 			if (product.getSituacao() == Produto.INDISPONIVEL) {
-				if (loteDTO.getNumeroDeItens() > 0) {
+				if (loteAux.getNumeroDeItens() > 0) {
 					Produto produtoDisponivel = product;
 					produtoDisponivel.situacao = Produto.DISPONIVEL;
 					produtoService.updateProduto(produtoDisponivel);

@@ -1,9 +1,16 @@
 package com.ufcg.si1.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 import exceptions.ObjetoInvalidoException;
 
+@Entity
 public class Usuario {
 
+	@Id
+	@GeneratedValue
 	private long id;
 
 	private String username;
