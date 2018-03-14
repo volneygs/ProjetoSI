@@ -16,12 +16,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ufcg.si1.model.Lote;
 import com.ufcg.si1.model.Produto;
-import com.ufcg.si1.repository.Repositorio;
+import com.ufcg.si1.repository.RepositorioProduto;
 import com.ufcg.si1.service.EstoqueService;
 import com.ufcg.si1.service.LoteService;
 import com.ufcg.si1.service.LoteServiceImpl;
-import com.ufcg.si1.service.ProdutoService;
-import com.ufcg.si1.service.ProdutoServiceImpl;
 import com.ufcg.si1.util.CustomErrorType;
 
 import exceptions.ObjetoInvalidoException;
@@ -32,12 +30,12 @@ import exceptions.ObjetoInvalidoException;
 public class RestApiController {
 
 	@Autowired
-	Repositorio repositorio;
+	RepositorioProduto repositorioProduto;
 	
 	@Autowired
-	EstoqueService estoque = new EstoqueService();
+	EstoqueService estoqueService = new EstoqueService();
 	
-	ProdutoService produtoService = new ProdutoServiceImpl();
+	//ProdutoService produtoService = new ProdutoServiceImpl();
 	LoteService loteService = new LoteServiceImpl();
 
 	// -------------------Retrieve All
@@ -46,15 +44,10 @@ public class RestApiController {
 	@RequestMapping(value = "/produto/", method = RequestMethod.GET)
 	public ResponseEntity<List<Produto>> listAllUsers() {
 		
-		List<Produto> produtos = repositorio.findAll();
+		List<Produto> produtos = repositorioProduto.findAll();
 		
-		//List<Produto> produtos = produtoService.findAllProdutos();
+		return estoqueService.listAllUsers(produtos);
 
-		if (produtos.isEmpty()) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-			// You many decide to return HttpStatus.NOT_FOUND
-		}
-		return new ResponseEntity<List<Produto>>(produtos, HttpStatus.OK);
 	}
 
 	// -------------------Criar um
@@ -65,7 +58,7 @@ public class RestApiController {
 
 		boolean produtoExiste = false;
 
-		for (Produto p : repositorio.findAll()) {
+		for (Produto p : repositorioProduto.findAll()) {
 			if (p.getCodigoBarra().equals(produto.getCodigoBarra())) {
 				produtoExiste = true;
 			}
@@ -83,7 +76,13 @@ public class RestApiController {
 					+ produto.getFabricante() + " alguma coisa errada aconteceu!"), HttpStatus.NOT_ACCEPTABLE);
 		}
 
-		repositorio.save(produto);
+	//	estoqueService.criarProduto(repositorio.findAll(), produto);
+		
+		
+		estoqueService.criarProduto(repositorioProduto.findAll(), produto);
+		
+		repositorioProduto.save(produto);
+	
 
 		// HttpHeaders headers = new HttpHeaders();
 		// headers.setLocation(ucBuilder.path("/api/produto/{id}").buildAndExpand(produto.getId()).toUri());
@@ -94,19 +93,8 @@ public class RestApiController {
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> consultarProduto(@PathVariable("id") long id) {
 
-		Produto p = null;
-
-		for (Produto produto : repositorio.findAll()) {
-			if (produto.getId() == id) {
-				p = produto;
-			}
-		}
-
-		if (p == null) {
-			return new ResponseEntity(new CustomErrorType("Produto with id " + id + " not found"),
-					HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<Produto>(p, HttpStatus.OK);
+		return estoqueService.consultarProduto(repositorioProduto.findAll(), id);
+		
 	}
 
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -114,14 +102,14 @@ public class RestApiController {
 
 		Produto currentProduto = null;
 
-		for (Produto p : repositorio.findAll()) {
+		for (Produto p : repositorioProduto.findAll()) {
 			if (p.getId() == id) {
 				currentProduto = p;
 			}
 		}
 
 		if (currentProduto == null) {
-			return new ResponseEntity(new CustomErrorType("Unable to upate. Produto with id " + id + " not found."),
+			return new ResponseEntity(new CustomErrorType("Unable to update. Produto with id " + id + " not found."),
 					HttpStatus.NOT_FOUND);
 		}
 
@@ -140,9 +128,8 @@ public class RestApiController {
 		// id " + id + " invalid."),
 		// HttpStatus.NOT_FOUND);
 		// }
-
-		repositorio.save(currentProduto);
-		//produtoService.updateProduto(currentProduto);
+		
+		repositorioProduto.save(currentProduto);
 		return new ResponseEntity<Produto>(currentProduto, HttpStatus.OK);
 	}
 
@@ -151,7 +138,7 @@ public class RestApiController {
 
 		Produto user = null;
 
-		for (Produto produto : repositorio.findAll()) {
+		for (Produto produto : repositorioProduto.findAll()) {
 			if (produto.getId() == id) {
 				user = produto;
 			}
@@ -162,14 +149,22 @@ public class RestApiController {
 					HttpStatus.NOT_FOUND);
 		}
 		
-		repositorio.delete(user);
-		//produtoService.deleteProdutoById(id);
+		repositorioProduto.delete(user);
 		return new ResponseEntity<Produto>(HttpStatus.NO_CONTENT);
 	}
 
 	@RequestMapping(value = "/produto/{id}/lote", method = RequestMethod.POST)
 	public ResponseEntity<?> criarLote(@PathVariable("id") long produtoId, @RequestBody Lote loteAux) {
-		Produto product = produtoService.findById(produtoId);
+		
+		Produto product = null;
+		
+		for (Produto p : repositorioProduto.findAll()) {
+			if (p.getId() == produtoId) {
+				 product = p;
+			}
+		}
+		
+		
 
 		if (product == null) {
 			return new ResponseEntity(
@@ -177,14 +172,16 @@ public class RestApiController {
 					HttpStatus.NOT_FOUND);
 		}
 
-		Lote lote = loteService.saveLote(new Lote(product, loteAux.getNumeroDeItens(), loteAux.getDataDeValidade()));
-
+		Lote lote = new Lote(loteAux.getNumeroDeItens(), loteAux.getDataDeValidade());
+		
 		try {
 			if (product.getSituacao() == Produto.INDISPONIVEL) {
 				if (loteAux.getNumeroDeItens() > 0) {
 					Produto produtoDisponivel = product;
 					produtoDisponivel.situacao = Produto.DISPONIVEL;
-					produtoService.updateProduto(produtoDisponivel);
+					//produtoDisponivel.addLote(lote);
+					repositorioProduto.save(produtoDisponivel);
+					//produtoService.updateProduto(produtoDisponivel);
 				}
 			}
 		} catch (ObjetoInvalidoException e) {
@@ -196,7 +193,17 @@ public class RestApiController {
 
 	@RequestMapping(value = "/lote/", method = RequestMethod.GET)
 	public ResponseEntity<List<Lote>> listAllLotes() {
+		
 		List<Lote> lotes = loteService.findAllLotes();
+		
+	/*	for(Produto p : repositorioProduto.findAll()) {
+			
+			for(Lote lote : p.getLotes()) {
+				lotes.add(lote);
+			}
+		}
+		 */
+		
 
 		if (lotes.isEmpty()) {
 			return new ResponseEntity(HttpStatus.NO_CONTENT);

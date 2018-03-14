@@ -1,10 +1,14 @@
 package com.ufcg.si1.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import exceptions.ObjetoInvalidoException;
 
@@ -23,6 +27,9 @@ public class Produto {
 	private String codigoBarra;
 
 	private String fabricante;
+	
+	//@Autowired
+	//private List<Lote> lotes = new ArrayList<Lote>();
 
 	private String categoria;
 
@@ -46,6 +53,10 @@ public class Produto {
 		this.categoria = nomeCategoria;
 		this.situacao = Produto.INDISPONIVEL;
 	}
+	
+	/*public List<Lote> getLotes(){
+		return this.lotes;
+	} */
 
 	public String getNome() {
 		return nome;
@@ -94,6 +105,10 @@ public class Produto {
 	public void mudaCategoria(String categoria) {
 		this.categoria = categoria;
 	}
+	
+	/*public void addLote(Lote lote) {
+		this.lotes.add(lote);
+	} */
 		
 	public void mudaSituacao(int situacao) throws ObjetoInvalidoException {
 		switch (situacao) {
