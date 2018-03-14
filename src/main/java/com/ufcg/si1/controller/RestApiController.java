@@ -2,7 +2,9 @@ package com.ufcg.si1.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.ufcg.si1.model.Lote;
 import com.ufcg.si1.model.Produto;
 import com.ufcg.si1.model.DTO.LoteDTO;
+import com.ufcg.si1.repository.Repositorio;
 import com.ufcg.si1.service.LoteService;
 import com.ufcg.si1.service.LoteServiceImpl;
 import com.ufcg.si1.service.ProdutoService;
@@ -28,6 +31,9 @@ import exceptions.ObjetoInvalidoException;
 @CrossOrigin
 public class RestApiController {
 
+	@Autowired
+	Repositorio repositorio;
+	
 	ProdutoService produtoService = new ProdutoServiceImpl();
 	LoteService loteService = new LoteServiceImpl();
 
@@ -48,7 +54,7 @@ public class RestApiController {
 	// -------------------Criar um
 	// Produto-------------------------------------------
 
-	@RequestMapping(value = "/produto/", method = RequestMethod.POST)
+	@RequestMapping(value = "/produto/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> criarProduto(@RequestBody Produto produto, UriComponentsBuilder ucBuilder) {
 
 		boolean produtoExiste = false;
@@ -72,6 +78,7 @@ public class RestApiController {
 		}
 
 		produtoService.saveProduto(produto);
+		repositorio.save(produto);
 
 		// HttpHeaders headers = new HttpHeaders();
 		// headers.setLocation(ucBuilder.path("/api/produto/{id}").buildAndExpand(produto.getId()).toUri());
